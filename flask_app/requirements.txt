@@ -7,3 +7,5 @@ opentelemetry-instrumentation-flask
 opentelemetry-instrumentation-redis
 opentelemetry-instrumentation-requests
 requests
+prometheus_flask_exporter
+gunicorn

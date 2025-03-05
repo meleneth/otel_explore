@@ -1,4 +1,5 @@
 from flask import Flask, request, jsonify
+from prometheus_flask_exporter import PrometheusMetrics
 import redis
 from opentelemetry.sdk.resources import Resource
 from opentelemetry.instrumentation.flask import FlaskInstrumentor
@@ -27,6 +28,11 @@ app = Flask(__name__)
 
 FlaskInstrumentor().instrument_app(app)
 RequestsInstrumentor().instrument()
+# Attach Prometheus metrics to Flask
+metrics = PrometheusMetrics(app)
+
+# This exposes metrics at /metrics for Prometheus
+metrics.info("flask_app_info", "Flask App Info", version="1.0.0")
 
 # Redis Connection
 redis_client = redis.Redis(host="redis", port=6379, decode_responses=True)
