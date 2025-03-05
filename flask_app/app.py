@@ -36,19 +36,23 @@ def set_value():
     key = request.json.get("key")
     value = request.json.get("value")
     
-    with tracer.start_as_current_span("flask_set_value"):
+    with tracer.start_as_current_span("redis_set_value"):
         redis_client.set(key, value)
 
-    return jsonify({"message": f"Set {key} = {value}"}), 200
+    with tracer.start_as_current_span("format_return"):
+        value = jsonify({"message": f"Set {key} = {value}"})
+    return value, 200
 
 @app.route("/get", methods=["GET"])
 def get_value():
     key = request.args.get("key")
     
-    with tracer.start_as_current_span("flask_get_value"):
+    with tracer.start_as_current_span("redis_get_value"):
         value = redis_client.get(key)
+    with tracer.start_as_current_span("format_return"):
+        value = jsonify({"message": f"Set {key} = {value}"})
 
-    return jsonify({"value": value}), 200
+    return value, 200
 
 @app.route("/health", methods=["GET"])
 def health():

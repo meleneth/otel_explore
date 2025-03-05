@@ -12,6 +12,16 @@ services:
       timeout: 3s
       retries: 5
 
+  redis-exporter:
+    image: oliver006/redis_exporter:latest
+    environment:
+      - REDIS_ADDR=redis://redis:6379
+    ports:
+      - "9121:9121"  # Prometheus will scrape this
+    depends_on:
+      redis:
+        condition: service_healthy
+
   otel-collector:
     build: ./otel-collector  # Use custom Dockerfile instead of pulling image
     volumes:
@@ -22,7 +32,7 @@ services:
       - prometheus
 
   jaeger:
-    image: jaegertracing/all-in-one:latest
+    image: jaegertracing/jaeger:2.3.0
     environment:
       - COLLECTOR_OTLP_ENABLED=true
     ports:

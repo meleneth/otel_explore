@@ -7,4 +7,4 @@ scrape_configs:
       - targets: ["otel-collector:9464"]
   - job_name: "redis"
     static_configs:
-      - targets: ["redis:9121"]
+      - targets: ["redis-exporter:9121"]
