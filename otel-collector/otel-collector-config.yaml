@@ -2,12 +2,15 @@ receivers:
   otlp:
     protocols:
       grpc:
+        endpoint: "0.0.0.0:4317"  # Add this line to listen on 4317
       http:
+        endpoint: "0.0.0.0:4318"
 
 exporters:
-  jaeger:
-    endpoint: "jaeger:14250"
-    insecure: true
+  otlp:
+    endpoint: "jaeger:4317"  # Ensure it sends traces to Jaeger
+    tls:
+      insecure: true
   prometheus:
     endpoint: "0.0.0.0:9464"
 
@@ -15,7 +18,7 @@ service:
   pipelines:
     traces:
       receivers: [otlp]
-      exporters: [jaeger]
+      exporters: [otlp]
     metrics:
       receivers: [otlp]
       exporters: [prometheus]
