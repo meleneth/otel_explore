@@ -6,6 +6,12 @@ receivers:
       http:
         endpoint: "0.0.0.0:4318"
 
+connectors:
+  spanmetrics:
+    dimensions:
+      - name: worker_id  # Captures worker_id as a Prometheus label
+    aggregation_temporality: cumulative
+
 exporters:
   otlp:
     endpoint: "jaeger:4317"  # Ensure it sends traces to Jaeger
@@ -14,11 +20,16 @@ exporters:
   prometheus:
     endpoint: "0.0.0.0:9464"
 
+processors:
+  batch: {}
+
 service:
   pipelines:
     traces:
       receivers: [otlp]
-      exporters: [otlp]
+      processors: [batch]  # Ensure traces are batched before exporting
+      exporters: [otlp, spanmetrics]  # Add spanmetrics as an exporter
     metrics:
-      receivers: [otlp]
-      exporters: [prometheus]
+      receivers: [spanmetrics]  # Use spanmetrics to generate trace-derived metrics
+      processors: [batch]  # Batch metrics before sending to Prometheus
+      exporters: [prometheus]  # Export metrics to Prometheus
