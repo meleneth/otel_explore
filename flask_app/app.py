@@ -41,7 +41,11 @@ redis_client = redis.Redis(host="redis", port=6379, decode_responses=True)
 def set_value():
     key = request.json.get("key")
     value = request.json.get("value")
-    
+    with tracer.start_as_current_span("request_handling") as span:
+        worker_id = request.headers.get("X-Worker-ID")
+        if worker_id:
+            span.set_attribute("worker_id", worker_id)
+
     with tracer.start_as_current_span("redis_set_value"):
         redis_client.set(key, value)
 
@@ -52,7 +56,11 @@ def set_value():
 @app.route("/get", methods=["GET"])
 def get_value():
     key = request.args.get("key")
-    
+    with tracer.start_as_current_span("request_handling") as span:
+        worker_id = request.headers.get("X-Worker-ID")
+        if worker_id:
+            span.set_attribute("worker_id", worker_id)
+ 
     with tracer.start_as_current_span("redis_get_value"):
         value = redis_client.get(key)
     with tracer.start_as_current_span("format_return"):

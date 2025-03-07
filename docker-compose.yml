@@ -23,13 +23,15 @@ services:
         condition: service_healthy
 
   otel-collector:
-    build: ./otel-collector  # Use custom Dockerfile instead of pulling image
+    image: otel/opentelemetry-collector-contrib
     volumes:
       - ./otel-collector/otel-collector-config.yaml:/etc/otel-collector-config.yaml
     command: ["--config=/etc/otel-collector-config.yaml"]
     depends_on:
       - jaeger
       - prometheus
+    ports:
+      - "9464:9464"
 
   jaeger:
     image: jaegertracing/jaeger:2.3.0
@@ -75,7 +77,7 @@ services:
     ports:
       - "3000:3000"
     volumes:
-      - ./grafana:/etc/grafana/provisioning/dashboards
+      - ./grafana/data:/var/lib/grafana  # Mount to a local folder
     depends_on:
       - prometheus
 

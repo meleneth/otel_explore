@@ -28,7 +28,10 @@ while True:
 
     # Send request to Flask app
     with tracer.start_as_current_span("worker_set_request"):
-        response = requests.post(f"{FLASK_APP_URL}/set", json={"key": key, "value": value})
+        response = requests.post(f"{FLASK_APP_URL}/set",
+                                 json={"key": key, "value": value},
+                                 headers={"X-Worker-ID": RUNNER_ID}
+                                )
 
     print(f"Runner {RUNNER_ID}: Set {key} = {value}, Response: {response.status_code}")
     time.sleep(random.uniform(0.5, 2))
