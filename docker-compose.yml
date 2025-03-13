@@ -36,8 +36,6 @@ services:
     image: otel/opentelemetry-collector-contrib
     volumes:
       - ./otel-collector/otel-collector-config.yaml:/etc/otel-collector-config.yaml
-      - ./grafana/provisioning/datasources:/etc/grafana/provisioning/datasources
-      - ./grafana/provisioning/dashboards:/etc/grafana/provisioning/dashboards
     command: ["--config=/etc/otel-collector-config.yaml"]
     depends_on:
       - jaeger
@@ -84,12 +82,17 @@ services:
 
   grafana:
     image: grafana/grafana:latest
+   
     environment:
       - GF_SECURITY_ADMIN_PASSWORD=admin
+      - GF_PATHS_PROVISIONING=/etc/grafana/provisioning
     ports:
       - "3000:3000"
     volumes:
       - ./grafana/data:/var/lib/grafana  # Mount to a local folder
+      - ./grafana/provisioning/datasources:/etc/grafana/provisioning/datasources
+      - ./grafana/provisioning/dashboards:/etc/grafana/provisioning/dashboards
+
     depends_on:
       - prometheus
 

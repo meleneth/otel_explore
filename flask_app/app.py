@@ -11,8 +11,12 @@ from opentelemetry.sdk.trace import TracerProvider
 from opentelemetry.sdk.trace.export import BatchSpanProcessor
 from opentelemetry.exporter.otlp.proto.grpc.trace_exporter import OTLPSpanExporter
 from opentelemetry.trace import set_tracer_provider
-from opentelemetry.sdk.logs import LoggerProvider, LoggingHandler
-from opentelemetry.sdk.logs.export import OTLPLogExporter, BatchLogRecordProcessor
+from opentelemetry._logs import set_logger_provider
+from opentelemetry.exporter.otlp.proto.grpc._log_exporter import (
+    OTLPLogExporter,
+)
+from opentelemetry.sdk._logs import LoggerProvider, LoggingHandler
+from opentelemetry.sdk._logs.export import BatchLogRecordProcessor
 from opentelemetry.trace import get_tracer_provider, set_tracer_provider
 from opentelemetry.sdk.trace.export import BatchSpanProcessor
 from opentelemetry.exporter.otlp.proto.grpc.trace_exporter import OTLPSpanExporter
@@ -27,13 +31,20 @@ tracer = get_tracer_provider().get_tracer(__name__)
 # Set up OTLP Exporter
 otlp_exporter = OTLPSpanExporter(endpoint="http://otel-collector:4317", insecure=True)
 provider.add_span_processor(BatchSpanProcessor(otlp_exporter))
+
 # Initialize OpenTelemetry logging provider
-logger_provider = LoggerProvider()
+
+
+logger_provider = LoggerProvider(resource=resource)
+set_logger_provider(logger_provider)
+
 log_exporter = OTLPLogExporter(endpoint="http://otel-collector:4317")  # Adjust if necessary
 logger_provider.add_log_record_processor(BatchLogRecordProcessor(log_exporter))
 
 # Use OpenTelemetry logging
 otel_logger = logger_provider.get_logger("otel_explore")
+log_handler = LoggingHandler(level=logging.NOTSET, logger_provider=logger_provider)
+otel_logger.addHandler(log_handler)
 
 # Thread-local storage for worker ID
 worker_local = threading.local()

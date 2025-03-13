@@ -1,34 +1,32 @@
 {
-    "dashboard": {
-      "id": null,
-      "uid": "otel-logs",
-      "title": "OpenTelemetry Logs & Metrics",
-      "tags": ["otel", "logs", "metrics"],
-      "timezone": "browser",
-      "panels": [
-        {
-          "title": "Log Volume",
-          "type": "timeseries",
-          "targets": [
-            {
-              "datasource": "Loki",
-              "expr": "count_over_time({job=\"flask\"} | json | level=\"info\"[5m])"
-            }
-          ]
-        },
-        {
-          "title": "Request Rate",
-          "type": "timeseries",
-          "targets": [
-            {
-              "datasource": "Prometheus",
-              "expr": "rate(http_requests_total[5m])"
-            }
-          ]
-        }
-      ],
-      "schemaVersion": 18,
-      "version": 1
-    }
+    "id": null,
+    "uid": "otel-logs",
+    "title": "OpenTelemetry Logs & Metrics",
+    "tags": ["otel", "logs", "metrics"],
+    "timezone": "browser",
+    "schemaVersion": 18,
+    "version": 1,
+    "panels": [
+      {
+        "title": "Log Volume",
+        "type": "timeseries",
+        "targets": [
+          {
+            "datasource": "Loki",
+            "expr": "count_over_time({job=\"flask\"} | json | level=\"info\"[5m])"
+          }
+        ]
+      },
+      {
+        "title": "Request Rate",
+        "type": "timeseries",
+        "targets": [
+          {
+            "datasource": "Prometheus",
+            "expr": "rate(http_requests_total[5m])"
+          }
+        ]
+      }
+    ]
   }
   

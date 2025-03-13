@@ -1,0 +1,16 @@
+apiVersion: 1
+providers:
+  - name: "otel_dashboards"  # Any unique name
+    folder: ""
+    type: file
+    disableDeletion: false
+    updateIntervalSeconds: 10
+    options:
+      path: /etc/grafana/provisioning/dashboards
+  - name: "BigBoard"  # Any unique name
+    folder: ""
+    type: file
+    disableDeletion: false
+    updateIntervalSeconds: 10
+    options:
+      path: /etc/grafana/provisioning/dashboards
