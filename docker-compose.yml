@@ -22,10 +22,22 @@ services:
       redis:
         condition: service_healthy
 
+  loki:
+    image: grafana/loki:latest
+    container_name: loki
+    ports:
+      - "11102:3100"
+    volumes:
+      - ./loki:/loki
+    command: -config.file=/etc/loki/local-config.yaml
+    restart: unless-stopped
+
   otel-collector:
     image: otel/opentelemetry-collector-contrib
     volumes:
       - ./otel-collector/otel-collector-config.yaml:/etc/otel-collector-config.yaml
+      - ./grafana/provisioning/datasources:/etc/grafana/provisioning/datasources
+      - ./grafana/provisioning/dashboards:/etc/grafana/provisioning/dashboards
     command: ["--config=/etc/otel-collector-config.yaml"]
     depends_on:
       - jaeger
