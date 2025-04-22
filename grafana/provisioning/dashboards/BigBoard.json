@@ -206,7 +206,7 @@
               "uid": "prometheus_ds"
             },
             "editorMode": "code",
-            "expr": "{worker_id!=\"\"}",
+            "expr": "rate(traces_span_metrics_calls_total{worker_id!=\"\"}[1m])",
             "range": true,
             "refId": "A"
           }
