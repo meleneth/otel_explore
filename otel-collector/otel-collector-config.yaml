@@ -2,34 +2,48 @@ receivers:
   otlp:
     protocols:
       grpc:
-        endpoint: "0.0.0.0:4317"  # Add this line to listen on 4317
+        endpoint: "0.0.0.0:4317"
       http:
         endpoint: "0.0.0.0:4318"
 
 connectors:
-  spanmetrics:
+  spanmetrics:  # ✅ Correct: `spanmetrics` is a connector
     dimensions:
       - name: worker_id  # Captures worker_id as a Prometheus label
     aggregation_temporality: cumulative
 
 exporters:
-  otlp:
-    endpoint: "jaeger:4317"  # Ensure it sends traces to Jaeger
+  otlp:  # ✅ Correct: Sends traces to Jaeger using OTLP
+    endpoint: "jaeger:4317"
     tls:
       insecure: true
+
   prometheus:
     endpoint: "0.0.0.0:9464"
 
+  loki:
+    endpoint: "http://loki:3100/loki/api/v1/push"
+
 processors:
-  batch: {}
+  batch: {}  # ✅ Batches spans, metrics, and logs before sending
+  memory_limiter:
+    limit_mib: 500
+    spike_limit_mib: 100
+    check_interval: 5s
 
 service:
   pipelines:
     traces:
       receivers: [otlp]
-      processors: [batch]  # Ensure traces are batched before exporting
-      exporters: [otlp, spanmetrics]  # Add spanmetrics as an exporter
+      processors: [batch, memory_limiter]
+      exporters: [otlp, spanmetrics]  # ✅ Sends traces to Jaeger and spanmetrics connector
+
     metrics:
-      receivers: [spanmetrics]  # Use spanmetrics to generate trace-derived metrics
-      processors: [batch]  # Batch metrics before sending to Prometheus
-      exporters: [prometheus]  # Export metrics to Prometheus
+      receivers: [spanmetrics]  # ✅ Uses spanmetrics as a metrics receiver
+      processors: [batch]
+      exporters: [prometheus]  # ✅ Sends span-based metrics to Prometheus
+
+    logs:
+      receivers: [otlp]
+      processors: [batch]
+      exporters: [loki]

@@ -22,6 +22,16 @@ services:
       redis:
         condition: service_healthy
 
+  loki:
+    image: grafana/loki:latest
+    container_name: loki
+    ports:
+      - "11102:3100"
+    volumes:
+      - ./loki:/loki
+    command: -config.file=/etc/loki/local-config.yaml
+    restart: unless-stopped
+
   otel-collector:
     image: otel/opentelemetry-collector-contrib
     volumes:
@@ -72,12 +82,17 @@ services:
 
   grafana:
     image: grafana/grafana:latest
+   
     environment:
       - GF_SECURITY_ADMIN_PASSWORD=admin
+      - GF_PATHS_PROVISIONING=/etc/grafana/provisioning
     ports:
       - "3000:3000"
     volumes:
       - ./grafana/data:/var/lib/grafana  # Mount to a local folder
+      - ./grafana/provisioning/datasources:/etc/grafana/provisioning/datasources
+      - ./grafana/provisioning/dashboards:/etc/grafana/provisioning/dashboards
+
     depends_on:
       - prometheus
 

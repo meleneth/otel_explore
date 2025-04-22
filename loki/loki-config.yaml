@@ -1,0 +1,54 @@
+auth_enabled: false
+
+server:
+  http_listen_port: 3100
+
+ingester:
+  wal:
+    enabled: false  # Set to true if you want Write-Ahead Logging (WAL) for crash recovery
+  lifecycler:
+    ring:
+      kvstore:
+        store: inmemory  # Change to `boltdb` if you need persistent storage
+      replication_factor: 1
+  chunk_idle_period: 5m  # Time before chunks are flushed
+  max_chunk_age: 1h  # Maximum time before a chunk is flushed
+
+schema_config:
+  configs:
+    - from: 2023-01-01
+      store: boltdb-shipper
+      object_store: filesystem
+      schema: v11
+      index:
+        prefix: index_
+        period: 24h
+
+storage_config:
+  boltdb_shipper:
+    active_index_directory: /loki/index
+    cache_location: /loki/cache
+    shared_store: filesystem
+
+limits_config:
+  retention_period: 7d  # 🚀 Delete logs older than 7 days
+  enforce_metric_name: false
+  reject_old_samples: true
+  reject_old_samples_max_age: 168h  # Reject logs older than 7 days
+
+compactor:
+  working_directory: /loki/compactor
+  shared_store: filesystem
+  retention_enabled: true
+  retention_delete_delay: 2h  # Avoid accidental deletes
+  retention_delete_worker_count: 2
+  delete_request_store: filesystem
+  retention:
+    - period: 7d
+      selector: '{job="flask"}'  # Only keep Flask logs for 7 days
+    - period: 30d
+      selector: '{job="system"}'  # Keep system logs for 30 days
+
+table_manager:
+  retention_deletes_enabled: true
+  retention_period: 7d  # Global retention for old logs
