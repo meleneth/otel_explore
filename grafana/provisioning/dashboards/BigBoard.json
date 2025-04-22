@@ -110,7 +110,7 @@
             },
             "editorMode": "code",
             "expr": "rate(flask_http_request_total[5m]) * 60",
-            "legendFormat": "__auto",
+            "legendFormat": "{{worker_id}}",
             "range": true,
             "refId": "A"
           }
